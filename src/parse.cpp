@@ -2,8 +2,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
-// Your custom OctreeProcessor class header
-//#include "your_octree_processor.h"
+//#include "your_octree_message_type.hpp"  // Include the actual message type for Octree data
+
 
 // Define a new class that inherits from rclcpp::Node
 class OctreeProcessorNode : public rclcpp::Node {
@@ -13,7 +13,11 @@ public:
         
         // Create a publisher for PointCloud2 messages
         publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("your_topic_name", 1000);
-    }
+
+        //creating a subscriber for Octree
+        subscription_ = this->create_subscription<your_octree_message_type>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));    
+            
+        }
 
     void processOctree() {
         // Create PointCloud2 messages for occupied and free points
@@ -65,6 +69,14 @@ private:
 
     // ROS 2 publisher
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
+
+    //Ros2 subscriber
+    rclcpp::Subscription<your_octree_message_type>::SharedPtr subscription_;
+    void octreeCallback(const your_octree_message_type::SharedPtr msg) 
+    {
+        // Process the received Octree data
+        processOctree(msg);
+    }
 };
 
 int main(int argc, char **argv) {
@@ -75,7 +87,7 @@ int main(int argc, char **argv) {
     auto node = std::make_shared<OctreeProcessorNode>("octree_processor_node", tree, threshold);
 
     // Process the octree and publish PointCloud2 messages
-    node->processOctree();
+    //node->processOctree();
 
     // Spin the ROS 2 node
     rclcpp::spin(node);
