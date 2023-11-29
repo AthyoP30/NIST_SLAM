@@ -6,22 +6,24 @@
 #include <octomap/octomap.h>
 #include <octomap_msgs/Octomap.h>
 #include <octomap/ColorOcTree.h>
+#include <AbstractOcTree.h>
 
 // Define a new class that inherits from rclcpp::Node
 class OctreeProcessorNode : public rclcpp::Node {
 public:
-    OctreeProcessorNode(const std::string& node_name, std::shared_ptr<OcTreeType> tree, double threshold)
+    OctreeProcessorNode(const std::string& node_name, std::shared_ptr<Octomap::Octree> tree, double threshold)
         : Node(node_name), tree(tree), occupancyThreshold(threshold) {
         
         // Create a publisher for PointCloud2 messages
-        publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("your_topic_name", 1000);
+        publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("Parse_Oct", 1000);
 
         //creating a subscriber for Octree
-        subscription_ = this->create_subscription<std_msgs/Header.msg>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));    
+        subscription_ = this->create_subscription<octomap_msgs::msg::Octomap>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));    
             
         }
 
-    void processOctree() {
+
+    void processOctree(octomap::AbstractOcTree* tree ) {
         // Create PointCloud2 messages for occupied and free points
         sensor_msgs::msg::PointCloud2 pcl_msg_occupied;
         sensor_msgs::msg::PointCloud2 pcl_msg_free;
@@ -35,7 +37,7 @@ public:
         sensor_msgs::PointCloud2Iterator<float> iterYFree(pcl_msg_free, "y");
         sensor_msgs::PointCloud2Iterator<float> iterZFree(pcl_msg_free, "z");
 
-        for (OcTreeTYPE::tree_iterator it = tree->begin_tree(), end = tree->end_tree(); it != end; ++it) {
+        for (octomap::OcTree::tree_iterator it = tree->begin_tree(), end = tree->end_tree(); it != end; ++it) {
             if (it->isleaf() == true) {
                 double nodeValue = it->getValue();
                 if (nodeValue > occupancyThreshold) {
@@ -66,18 +68,20 @@ public:
     }
 
 private:
-    std::shared_ptr<OcTreeType> tree; // The octree
+    std::shared_ptr<Octomap::Octree> tree; // The octree
     double occupancyThreshold; // Threshold for occupancy determination
 
     // ROS 2 publisher
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
 
     //Ros2 subscriber
-    rclcpp::Subscription<your_octree_message_type>::SharedPtr subscription_;
-    void octreeCallback(const your_octree_message_type::SharedPtr msg) 
+    rclcpp::Subscription<Octomap::Octree>::SharedPtr subscription_;
+
+    void octreeCallback(const Octomap::Octree::SharedPtr msg) 
     {
         // Process the received Octree data
-        processOctree(msg);
+        octomap::AbstractOcTree* tree = octomap_msgs::binaryMsgToMap(&Octomap);
+        processOctree(tree);
     }
 };
 
