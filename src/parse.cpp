@@ -5,7 +5,6 @@
 //#include "your_octree_message_type.hpp"  // Include the actual message type for Octree data
 #include <octomap/octomap.h>
 #include <octomap_msgs/Octomap.h>
-#include <octomap/ColorOcTree.h>
 #include <AbstractOcTree.h>
 
 // Define a new class that inherits from rclcpp::Node
@@ -18,8 +17,7 @@ public:
         publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("Parse_Oct", 1000);
 
         //creating a subscriber for Octree
-        subscription_ = this->create_subscription<octomap_msgs::msg::Octomap>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));    
-            
+        subscription_ = this->create_subscription<octomap_msgs::msg::Octomap>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));          
         }
 
 

@@ -47,6 +47,10 @@ add_executable(${PROJECT_NAME}_imageProjection src/imageProjection.cpp)
 ament_target_dependencies(${PROJECT_NAME}_imageProjection rclcpp rclpy std_msgs sensor_msgs geometry_msgs nav_msgs pcl_msgs visualization_msgs pcl_msgs tf2 tf2_ros tf2_eigen tf2_sensor_msgs tf2_geometry_msgs OpenCV PCL)
 target_link_libraries(${PROJECT_NAME}_imageProjection "${cpp_typesupport_target}") 
 
+add_executable(${PROJECT_NAME}_parse src/parse.cpp)
+ament_target_dependencies(${PROJECT_NAME}_parse rclcpp rclpy std_msgs sensor_msgs geometry_msgs nav_msgs pcl_msgs visualization_msgs pcl_msgs tf2 tf2_ros tf2_eigen tf2_sensor_msgs tf2_geometry_msgs OpenCV PCL)
+target_link_libraries(${PROJECT_NAME}_parse "${cpp_typesupport_target}") 
+
 add_executable(${PROJECT_NAME}_imuPreintegration src/imuPreintegration.cpp)
 ament_target_dependencies(${PROJECT_NAME}_imuPreintegration rclcpp rclpy std_msgs sensor_msgs geometry_msgs nav_msgs pcl_msgs visualization_msgs tf2 tf2_ros tf2_eigen tf2_sensor_msgs tf2_geometry_msgs OpenCV PCL GTSAM Eigen)
 target_link_libraries(${PROJECT_NAME}_imuPreintegration gtsam "${cpp_typesupport_target}")
@@ -72,6 +76,11 @@ install(
 
 install(
   TARGETS ${PROJECT_NAME}_imageProjection
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ${PROJECT_NAME}_parse
   DESTINATION lib/${PROJECT_NAME}
 )
 

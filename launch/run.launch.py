@@ -87,5 +87,12 @@ def generate_launch_description():
             name='rviz2',
             arguments=['-d', rviz_config_file],
             output='screen'
+        ),
+        Node(
+            package='lio_sam',
+            executable='lio_sam_parse',
+            name='lio_sam_parse',
+            parameters=[parameter_file],
+            output='screen'
         )
     ])
