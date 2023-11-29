@@ -3,19 +3,21 @@
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
 //#include "your_octree_message_type.hpp"  // Include the actual message type for Octree data
-
+#include <octomap/octomap.h>
+#include <octomap_msgs/Octomap.h>
+#include <octomap/ColorOcTree.h>
 
 // Define a new class that inherits from rclcpp::Node
 class OctreeProcessorNode : public rclcpp::Node {
 public:
-    OctreeProcessorNode(const std::string& node_name, OcTreeTYPE* tree, double threshold)
+    OctreeProcessorNode(const std::string& node_name, std::shared_ptr<OcTreeType> tree, double threshold)
         : Node(node_name), tree(tree), occupancyThreshold(threshold) {
         
         // Create a publisher for PointCloud2 messages
         publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("your_topic_name", 1000);
 
         //creating a subscriber for Octree
-        subscription_ = this->create_subscription<your_octree_message_type>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));    
+        subscription_ = this->create_subscription<std_msgs/Header.msg>("/octomap_full", 10, std::bind(&OctreeProcessorNode::octreeCallback, this, std::placeholders::_1));    
             
         }
 
@@ -64,7 +66,7 @@ public:
     }
 
 private:
-    OcTreeTYPE* tree; // The octree
+    std::shared_ptr<OcTreeType> tree; // The octree
     double occupancyThreshold; // Threshold for occupancy determination
 
     // ROS 2 publisher
@@ -84,6 +86,8 @@ int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
     
     // Create a shared pointer to the Node
+    double threshold = 0.5; 
+    
     auto node = std::make_shared<OctreeProcessorNode>("octree_processor_node", tree, threshold);
 
     // Process the octree and publish PointCloud2 messages
